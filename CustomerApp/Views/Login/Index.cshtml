@@ -1,0 +1,40 @@
+﻿
+@{
+    @Styles.Render("~/Content/css")
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+</head>
+<body>
+    <div>
+        @using (Html.BeginForm("Index", "Login", FormMethod.Post))
+        {
+            <div class="form-horizontal">
+                <div class="form-group">
+                    @Html.AntiForgeryToken()
+                    <br />
+                    <label>Email</label>
+                    <input id="txtuser" name="txtuser" type="text" class="form-control" />
+                    <br />
+                    <label>Password</label>
+                    <input id="txtpass" name="txtpass" type="password" class="form-control" />
+                    <br />
+                    <input type="submit" class="btn btn-primary" />
+                    <br />
+                    <br />
+                    @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        }
+    </div>
+
+</body>
+</html>
+
+
+
