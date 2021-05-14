@@ -32,6 +32,7 @@ namespace CustomerApp.Controllers
         {
             try
             {
+              
                 return Success(Messages.SUCCESS, clientService.GetAllClients());
             }
             catch (Exception ex)
@@ -53,7 +54,17 @@ namespace CustomerApp.Controllers
         {
             try
             {
-                return Success(Messages.SUCCESS, clientService.AddOrUpdateClient(model));
+                var data =await clientService.AddOrUpdateClient(model);
+                var i = 0;
+                try
+                {
+                    i = int.Parse(data.ToString());
+                    return Success(Messages.SUCCESS, i);
+                }
+                catch (FormatException ex)
+                {
+                    return Error(data);
+                }
             }
             catch (Exception ex)
             {
@@ -91,11 +102,16 @@ namespace CustomerApp.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("GetClientByUID")]
-        public IHttpActionResult GetClientByUID(string id)
+        public async Task<IHttpActionResult> GetClientByUID(string id)
         {
             try
             {
-                return Success(Messages.SUCCESS, clientService.GetClientByUID(id));
+                var data = await clientService.GetClientByUID(id);
+                if (data == null)
+                {
+                    return Error(Messages.NOT_FOUND);
+                }
+                return Success(Messages.SUCCESS,data);
             }
             catch (Exception ex)
             {

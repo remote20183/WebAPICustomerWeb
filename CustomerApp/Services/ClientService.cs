@@ -3,6 +3,7 @@ using CustomerApp.Helpers;
 using CustomerApp.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -22,21 +23,27 @@ namespace CustomerApp.Services
         {
             try
             {
+                db.Configuration.AutoDetectChangesEnabled = false;
                 if (string.IsNullOrWhiteSpace(model.Email))
                     throw new Exception(Messages.BAD_DATA);
 
                 var client = db.Clients.FirstOrDefault(x => x.Id == model.Id);
                 if (client == null)
                 {
-                    if (!string.IsNullOrWhiteSpace(model.Email) && IsClientExists(model.UID))
+                    if (string.IsNullOrEmpty(model.Email))
+                        throw new Exception(Messages.BAD_DATA);
+
+                    if (IsClientExists(model.UID))
+                    {
                         throw new Exception(Messages.UID_EXISTS);
+                    }
                     client = new Client();
                     client.Email = model.Email;
                     client.ExpiryDate = model.ExpiryDate;
                     client.Mobile = model.Mobile;
                     client.UID = model.UID;
                     db.Clients.Add(client);
-                    await db.SaveChangesAsync();
+              await   db.SaveChangesAsync();
                     return client.Id.ToString();
                 }
                 else
@@ -45,13 +52,13 @@ namespace CustomerApp.Services
                         throw new Exception(Messages.UID_EXISTS);
 
                     db.Entry(client).CurrentValues.SetValues(model);
-                    await db.SaveChangesAsync();
+                  await  db.SaveChangesAsync();
                     return client.Id.ToString();
                 }
             }
             catch (Exception ex)
             {
-                throw ex;
+                throw new Exception(ex.Message.ToString());
             }
 
         }
@@ -83,7 +90,7 @@ namespace CustomerApp.Services
         /// <returns></returns>
         public bool IsClientExists(string UID)
         {
-            return db.Clients.Count(x => x.UID.ToLower() == UID.ToLower()) > 0;
+            return db.Clients.Count(x => x.UID == UID) > 0;
         }
         #endregion
 
@@ -128,9 +135,17 @@ namespace CustomerApp.Services
         /// </summary>
         /// <param name="uid"></param>
         /// <returns></returns>
-        public Client GetClientByUID(string uid)
+        public async Task<Client> GetClientByUID(string uid)
         {
-            return db.Clients.Where(x => x.UID == uid).FirstOrDefault();
+            try
+            {
+                var data = await db.Clients.Where(x => x.UID == uid).FirstOrDefaultAsync();
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message.ToString());
+            }
         }
         #endregion
 
