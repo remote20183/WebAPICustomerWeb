@@ -11,7 +11,7 @@ using System.Web.Http;
 
 namespace CustomerApp.Controllers
 {
-    [Authorize(Roles = "Admin")]
+   
     [RoutePrefix("api/Client")]
     public class ClientServiceController : ApiController
     {
